@@ -1,0 +1,47 @@
+#if i have my own data then I ill introduce path to my data instead od iroisdataset:
+
+# Load the dataset
+#data = pd.read_csv('data.csv')
+import pandas as pd
+from sklearn.model_selection import cross_val_score, KFold
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
+
+# Load the dataset
+#iloc is a method used for integer-location based indexing of rows and columns in a DataFrame or a NumPy array.
+data = pd.read_csv('data.csv')
+X = data.iloc[:, :-1]  # Features#In Python, when you see the notation 
+#:-1 used with a DataFrame or a NumPy array, #it's typically used to slice the data to select all columns except the last one. 
+#Let's break down what this notation means:
+
+#The colon : is used to indicate a slice of the data.
+#The -1 specifies the stopping index for the slice which is the last column.
+y = data.iloc[:, -1]   # Labels# 
+
+# Define classifiers
+classifier1 = LogisticRegression()
+classifier2 = DecisionTreeClassifier()
+
+# Cross-validation
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+def evaluate_classifier(classifier):
+    accuracy = cross_val_score(classifier, X, y, cv=kf, scoring='accuracy').mean()
+    f1 = cross_val_score(classifier, X, y, cv=kf, scoring='f1_macro').mean()
+    auc = cross_val_score(classifier, X, y, cv=kf, scoring='roc_auc_ovr').mean()
+    return accuracy, f1, auc
+
+# Evaluate classifiers
+accuracy1, f1_score1, auc1 = evaluate_classifier(classifier1)
+accuracy2, f1_score2, auc2 = evaluate_classifier(classifier2)
+
+# Create a summary table
+summary = pd.DataFrame({
+    'Classifier': ['Logistic Regression', 'Decision Tree'],
+    'Average Accuracy': [accuracy1, accuracy2],
+    'Average F1 Score': [f1_score1, f1_score2],
+    'Average AUC': [auc1, auc2]
+})
+
+print(summary)
